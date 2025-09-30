@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The Pointless Game</title>
+    <style>
+        body {
+            background-color: yellow;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: peru;
+
+        }
+
+        /* Style for the big red click button */
+        #clickButton {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background-color: peru;
+            color: white;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        
+        #clickButton:active {
+            transform: scale(0.95);
+        }
+
+        /* Style for the shop button */
+        #shopToggle {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        
+        /* Style for the shop menu container */
+        #shopMenu {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #333;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+            display: none; /* Initially hide the shop menu */
+            width: 80%;
+            max-width: 400px;
+            text-align: left;
+        }
+        
+        /* Style for individual shop items */
+        .shop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .shop-item:last-child {
+            border-bottom: none;
+        }
+        
+        .buy-button {
+            padding: 5px 10px;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .buy-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>The Pointless Game</h1>
+    <button id="clickButton">Click Me</button>
+    <p>Clicks: <span id="clickCount">0</span></p>
+    <p>Auto-clicks: <span id="autoClickCount">0</span>/sec</p>
+
+    <!-- Shop menu -->
+    <button id="shopToggle">Open Shop</button>
+    <div id="shopMenu">
+        <h2>Shop</h2>
+        
+        <div class="shop-item">
+            <span>Power Clicker (+1 click)</span>
+            <button id="buyPowerClicker" class="buy-button">Buy (10 clicks)</button>
+        </div>
+        
+        <div class="shop-item">
+            <span>Super Clicker (+5 clicks)</span>
+            <button id="buySuperClicker" class="buy-button">Buy (100 clicks)</button>
+        </div>
+
+		<div class="shop-item">
+            <span>Premium clicker (+20 clicks)</span>
+            <button id="buyPremiumClicker" class="buy-button">Buy (500 clicks)</button>
+        </div>
+
+        <div class="shop-item">
+            <span>Basic Auto Clicker (+1/sec)</span>
+            <button id="buyAutoClicker1" class="buy-button">Buy (50 clicks)</button>
+        </div>
+
+        <div class="shop-item">
+            <span>Advanced Auto Clicker (+5/sec)</span>
+            <button id="buyAutoClicker2" class="buy-button">Buy (200 clicks)</button>
+        </div>
+
+        <div class="shop-item">
+            <span>Supreme Auto Clicker (+20/sec)</span>
+            <button id="buyAutoClicker3" class="buy-button">Buy (1000 clicks)</button>
+        </div>
+
+		<div class="shop-item">
+            <span>Auto Clicker Empire (+50/sec)</span>
+            <button id="buyAutoClicker4" class="buy-button">Buy (10000 clicks)</button>
+        </div>
+        
+		<div class="shop-item">
+            <span> Hey maybe lets choose a new game to play (+2k/sec)</span>
+            <button id="buyAutoClicker5" class="buy-button">Buy (1M clicks)</button>
+        </div>
+
+        <div class="shop-item">
+            <span> Flex Pack (+2M/sec, +1M clicks)</span>
+            <button id="buyFlex" class="buy-button">Buy (2B clicks)</button>
+        </div>
+        
+    </div>
+
+    <script>
+        // Game variables
+        let clicks = 0;
+        let clicksPerClick = 1;
+        let autoClicksPerSecond = 0;
+
+        // DOM elements
+        const button = document.getElementById('clickButton');
+        const clickDisplay = document.getElementById('clickCount');
+        const autoClickDisplay = document.getElementById('autoClickCount');
+        const shopToggleBtn = document.getElementById('shopToggle');
+        const shopMenu = document.getElementById('shopMenu');
+
+        // Shop items
+        const buyPowerClickerBtn = document.getElementById('buyPowerClicker');
+        const buySuperClickerBtn = document.getElementById('buySuperClicker');
+		const buyPremiumClickerBtn = document.getElementById('buyPremiumClicker')
+        const buyAutoClicker1Btn = document.getElementById('buyAutoClicker1');
+        const buyAutoClicker2Btn = document.getElementById('buyAutoClicker2');
+        const buyAutoClicker3Btn = document.getElementById('buyAutoClicker3');
+		const buyAutoClicker4Btn = document.getElementById('buyAutoClicker4');
+		const buyAutoClicker5Btn = document.getElementById('buyAutoClicker5');
+
+
+
+        // Functions
+        function updateClicks() {
+            clickDisplay.textContent = clicks;
+        }
+
+        function updateAutoClicker() {
+            autoClickDisplay.textContent = autoClicksPerSecond;
+        }
+
+        function toggleShop() {
+            shopMenu.style.display = (shopMenu.style.display === 'none' || shopMenu.style.display === '') ? 'block' : 'none';
+        }
+
+        function buyItem(cost, effect) {
+            if (clicks >= cost) {
+                clicks -= cost;
+                effect();
+                updateClicks();
+                checkBuyButtons();
+            } else {
+                alert("Not enough clicks!");
+            }
+        }
+        
+        function checkBuyButtons() {
+            buyPowerClickerBtn.disabled = clicks < 10;
+            buySuperClickerBtn.disabled = clicks < 100;
+			buyPremiumClickerBtn.disabled = clicks < 500
+            buyAutoClicker1Btn.disabled = clicks < 50;
+            buyAutoClicker2Btn.disabled = clicks < 200;
+            buyAutoClicker3Btn.disabled = clicks < 1000;
+			buyAutoClicker4Btn.disabled = clicks < 10000;
+			buyAutoClicker5Btn.disabled = clicks < 1000000;
+        }
+        
+        // Auto-clicker logic
+        setInterval(() => {
+            clicks += autoClicksPerSecond;
+            updateClicks();
+            checkBuyButtons();
+        }, 1000); // 1000 milliseconds = 1 second
+
+        // Event listeners
+        button.addEventListener('click', () => {
+            clicks += clicksPerClick;
+            updateClicks();
+            checkBuyButtons();
+        });
+
+        shopToggleBtn.addEventListener('click', toggleShop);
+
+        buyPowerClickerBtn.addEventListener('click', () => {
+            buyItem(10, () => {
+                clicksPerClick += 1;
+            });
+        });
+
+        buySuperClickerBtn.addEventListener('click', () => {
+            buyItem(100, () => {
+                clicksPerClick += 5;
+            });
+        });
+        
+        buyAutoClicker1Btn.addEventListener('click', () => {
+            buyItem(50, () => {
+                autoClicksPerSecond += 1;
+                updateAutoClicker();
+            });
+        });
+
+		buyPremiumClickerBtn.addEventListener('click', () => {
+            buyItem(500, () => {
+                clicksPerClick += 20;
+            });
+        });
+
+        buyAutoClicker2Btn.addEventListener('click', () => {
+            buyItem(200, () => {
+                autoClicksPerSecond += 5;
+                updateAutoClicker();
+            });
+        });
+
+        buyAutoClicker3Btn.addEventListener('click', () => {
+            buyItem(1000, () => {
+                autoClicksPerSecond += 20;
+                updateAutoClicker();
+            });
+        });
+        buyAutoClicker4Btn.addEventListener('click', () => {
+            buyItem(10000, () => {
+                autoClicksPerSecond += 50;
+                updateAutoClicker();
+            });
+        });
+		buyAutoClicker5Btn.addEventListener('click', () => {
+            buyItem(1000000, () => {
+                autoClicksPerSecond += 2000;
+                updateAutoClicker();
+            });
+        });
+        // Initial setup
+        updateClicks();
+        checkBuyButtons();
+    </script>
+</body>
+</html>
